@@ -1,4 +1,4 @@
-FROM logstash:2.3.1
+FROM logstash:2.3.4
 
 RUN logstash-plugin install --no-verify --development
 
