@@ -14,19 +14,22 @@ files.sort.each do |file|
 end
 
 
-def run_case(tcase, fields, ignore, data_file, i)
+def run_case(tcase, fields, ignore, only, data_file, i)
   input = fields
   input['message'] = tcase['in']
 
   msg_header = "[#{File.basename(data_file)}##{i}]"
 
-   sample(input) do
+  sample(input) do
     expected = tcase['out']
     expected_fields = expected.keys
 
     # Handle no results (for example, when a line is voluntarily dropped)
     lsresult = results.any? ? results[0] : {}
     result_fields = lsresult.to_hash.keys.select { |f| not ignore.include?(f) }
+    unless only.nil?
+      result_fields = result_fields.select { |f| only.include?(f) }
+    end
     formated_json = JSON.pretty_generate(lsresult.to_hash)
 
     # TODO test for grokparsefailures
@@ -57,7 +60,7 @@ filter_data.each do |data_file|
     describe "#{File.basename(data_file)}##{i}" do
       config(@@configuration)
       test_case = JSON.parse(File.read(data_file))
-      run_case(test_case['cases'][i], test_case['fields'], test_case['ignore'], data_file, i)
+      run_case(test_case['cases'][i], test_case['fields'], test_case['ignore'], test_case['only'], data_file, i)
     end
   end
 end
