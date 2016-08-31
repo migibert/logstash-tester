@@ -62,6 +62,9 @@ build_docker_image() {
     echo "====> Build docker image for test"
     sudo docker build -t gaspaio/logstash-tester \
         --build-arg LST=$rootdir \
+        --build-arg HTTP_PROXY=$http_proxy \
+        --build-arg HTTPS_PROXY=$https_proxy \
+        --build-arg NO_PROXY=$no_proxy \
         -f $PWD/Dockerfile .
 }
 
