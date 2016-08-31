@@ -16,7 +16,12 @@ end
 
 def run_case(tcase, fields, ignore, only, data_file, i)
   input = fields
-  input['message'] = tcase['in']
+  in_key = tcase['in_key']
+  if in_key.nil?
+    input['message'] = tcase['in']
+  else
+    input[in_key] = tcase['in']
+  end
 
   msg_header = "[#{File.basename(data_file)}##{i}]"
 
