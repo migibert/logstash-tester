@@ -1,2 +1,2 @@
-# Sample log files go in this directory
-samples/*
+.idea
+logstash-tester.iml
