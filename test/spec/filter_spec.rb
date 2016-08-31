@@ -27,17 +27,18 @@ def run_case(tcase, fields, ignore, data_file, i)
     # Handle no results (for example, when a line is voluntarily dropped)
     lsresult = results.any? ? results[0] : {}
     result_fields = lsresult.to_hash.keys.select { |f| not ignore.include?(f) }
+    formated_json = JSON.pretty_generate(lsresult.to_hash)
 
     # TODO test for grokparsefailures
 
     # Test for presence of expected fields
     missing = expected_fields.select { |f| not result_fields.include?(f) }
-    msg = "\n#{msg_header} Fields missing in logstash output: #{missing}\nComplete logstash output: #{lsresult.to_hash}\n--"
+    msg = "\n#{msg_header} Fields missing in logstash output: #{missing}\nComplete logstash output: #{formated_json}\n--"
     expect(missing).to be_empty, msg
 
     # Test for absence of unknown fields
     extra = result_fields.select { |f| not expected_fields.include?(f) }
-    msg = "\n#{msg_header} Unexpected fields in logstash output: #{extra}\nComplete logstash output: #{lsresult.to_hash}\n--"
+    msg = "\n#{msg_header} Unexpected fields in logstash output: #{extra}\nComplete logstash output: #{formated_json}\n--"
     expect(extra).to be_empty, msg
 
     # Test individual field values
