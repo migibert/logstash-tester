@@ -5,11 +5,12 @@ if [[ $1 == "all" || $1 == "patterns" ]]; then
 fi
 
 if [[ $1 == "all" || $1 == "filters" ]]; then
-    echo "###  RUN FILTER Tests  ####################"
+    echo "###  RUN Logstash --configtest ################"
     if [[ $2 == "y" ]]; then
         logstash --configtest -f /test/filter_config
     fi
 
+    echo "###  RUN FILTER Tests  ####################"
     rspec -f p /test/spec/filter_spec.rb
 fi
 
