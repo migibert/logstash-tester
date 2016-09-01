@@ -141,12 +141,12 @@ if [[ -z $datadir ]]; then
 fi
 
 # Validate directories
-docker_filter_config=$datadir/config/conf.d
+docker_filter_config=$datadir/logstash/conf.d
 if [[ ! -d $docker_filter_config ]]; then
     error "The filter config directory '$docker_filter_config' does not exist."
 fi
 
-docker_pattern_config=$datadir/config/patterns
+docker_pattern_config=$datadir/logstash/patterns
 if [[ ! -d $docker_pattern_config ]]; then
     error "The patterns directory '$docker_pattern_config' does not exist."
 fi
