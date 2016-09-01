@@ -10,7 +10,9 @@ filter_data = Dir[File.join(File.dirname(__FILE__), '../filter_data/**/*.json')]
 files = Dir[File.join(File.dirname(__FILE__), '../filter_config/*.conf')]
 @@configuration = String.new
 files.sort.each do |file|
-  @@configuration << File.read(file)
+  unless File.readlines(file).grep(/^input.*{/).any?
+    @@configuration << File.read(file)
+  end
 end
 
 
