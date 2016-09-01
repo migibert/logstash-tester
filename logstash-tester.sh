@@ -79,10 +79,10 @@ run_docker() {
     echo "====> Run test in docker container"
     sudo docker run --rm -it --privileged  \
         -v "${PWD}/test/spec":/test/spec/ \
-        -v "${PWD}/${FILTER_CONFIG}":/test/filter_config/ \
-        -v "${PWD}/${PATTERN_CONFIG}":/opt/logstash/patterns/ \
-        -v "${PWD}/${FILTER_TESTS}":/test/filter_data/ \
-        -v "${PWD}/${PATTERN_TESTS}":/test/pattern_data/ \
+        -v "${FILTER_CONFIG}":/test/filter_config/ \
+        -v "${PATTERN_CONFIG}":/opt/logstash/patterns/ \
+        -v "${FILTER_TESTS}":/test/filter_data/ \
+        -v "${PATTERN_TESTS}":/test/pattern_data/ \
         gaspaio/logstash-tester \
         $action $configtest
 }
@@ -101,6 +101,9 @@ while getopts ":d:p:chb" opt; do
         d)
             if [[ -d $OPTARG ]]; then
                 datadir=$OPTARG
+                if [ "${DIR:0:1}" != "/" ] ; then
+                    datadir=$( readlink -f $datadir)
+                fi
             else
                 error "'$OPTARG' is not a valid directory."
             fi
