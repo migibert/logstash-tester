@@ -79,7 +79,7 @@ run_docker() {
     echo "====> Run test in docker container"
     sudo docker run --rm -it --privileged  \
         -v "${PWD}/test/spec":/test/spec/ \
-        -v "${FILTER_CONFIG}":/test/filter_config/ \
+        -v "${FILTER_CONFIG}":/etc/logstash/conf.d/ \
         -v "${PATTERN_CONFIG}":/opt/logstash/patterns/ \
         -v "${FILTER_TESTS}":/test/filter_data/ \
         -v "${PATTERN_TESTS}":/test/pattern_data/ \

@@ -4,10 +4,10 @@ require "rspec/expectations"
 require 'json'
 
 # Load the test cases
-filter_data = Dir[File.join(File.dirname(__FILE__), '../filter_data/**/*.json')]
+filter_data = Dir['/test/filter_data/**/*.json']
 
 # Load the logstash filter config files
-files = Dir[File.join(File.dirname(__FILE__), '../filter_config/*.conf')]
+files = Dir['/etc/logstash/conf.d/*.conf']
 @@configuration = String.new
 files.sort.each do |file|
   unless File.readlines(file).grep(/^input.*{/).any?
