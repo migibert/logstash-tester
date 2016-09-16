@@ -1,3 +1,13 @@
-.idea
-logstash-tester.iml
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Editors files
+*~
 *.swp
