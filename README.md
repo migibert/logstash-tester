@@ -72,6 +72,7 @@ Here's a filter testcase taken from the examples :
 -   *fields*: the values are are expected to be appended to the message object by the input plugin.
 -   *ignore*: a list of keys that will be ignored in the logstash output
 -   *cases*: the list of test cases each with an "in" field containing the message to pass through the filtering pipeline and a "out" object field with the exact expected output.
+-   *in_key*: the field the message is located in. By default ```message```
 
 Pattern test cases are described pretty much in the same way :
 
@@ -110,7 +111,10 @@ Since an example is (sometimes) worth a thousand words, check out the 'example' 
 
 **Examples**
 
-Using the "example" data directory:
+You first need to build the docker image :
+```./logstash-test.sh -b```
+
+Then using the "example" data directory:
 
 -   ```./logstash-tester.sh -d example``` 
 
