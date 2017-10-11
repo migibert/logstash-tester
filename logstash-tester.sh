@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Is docker installed ?
+if ! hash docker 2> /dev/null; then
+    error "Can't find the Docker executable. Did you install it?"
+fi
+
 usage() {
     echo "
     Logstash Tester - Unit-testing for Logstash configuration fields
 
     Usage:
-        ./logstash-tester.sh [-chp] -d path [test_target]
+        ./logstash-tester.sh [-bchp] -d path [test_target]
 
         - 'path' is the base directory for your config files and test cases.
         - 'test_target' takes one of three possible values:
@@ -15,6 +20,8 @@ usage() {
           See examples for ... hum ... examples.
 
     Options:
+    -b
+        Build docker image for test
     -d
         Root directory for all your logstash config and test files.
         It is not optional and it should have a specific structure.
@@ -49,27 +56,35 @@ error() {
     exit 1
 }
 
+build_docker_image() {
+    rootdir=$( dirname $0 )
+
+    echo "====> Build docker image for test"
+    sudo docker build -t gaspaio/logstash-tester \
+        --build-arg LST=$rootdir \
+        --build-arg HTTP_PROXY=$http_proxy \
+        --build-arg HTTPS_PROXY=$https_proxy \
+        --build-arg NO_PROXY=$no_proxy \
+        -f $PWD/Dockerfile .
+}
+
 run_docker() {
     action=$1
     configtest=$2
-
-    if ! hash docker 2> /dev/null; then
-        error "Can't find the Docker executable. Did you install it?"
-    fi
-
-    rootdir=`dirname $0`
-
-    echo "====> Build docker image for test"
-    docker build -t gaspaio/logstash-tester \
-        --build-arg LST=$rootdir \
-        --build-arg FILTER_CONFIG=$3 \
-        --build-arg PATTERN_CONFIG=$4 \
-        --build-arg FILTER_TESTS=$5 \
-        --build-arg PATTERN_TESTS=$6 \
-        -f $rootdir/Dockerfile .
+    FILTER_CONFIG=$3
+    PATTERN_CONFIG=$4
+    FILTER_TESTS=$5
+    PATTERN_TESTS=$6
 
     echo "====> Run test in docker container"
-    docker run --rm -it gaspaio/logstash-tester $action $configtest
+    sudo docker run --rm -it --privileged  \
+        -v "${PWD}/test/spec":/test/spec/ \
+        -v "${FILTER_CONFIG}":/etc/logstash/conf.d/ \
+        -v "${PATTERN_CONFIG}":/opt/logstash/patterns/ \
+        -v "${FILTER_TESTS}":/test/filter_data/ \
+        -v "${PATTERN_TESTS}":/test/pattern_data/ \
+        gaspaio/logstash-tester \
+        $action $configtest
 }
 
 # Default values
@@ -77,11 +92,18 @@ action=all
 configtest=y
 filter_test_path=
 datadir=
-while getopts ":d:p:ch" opt; do
+while getopts ":d:p:chb" opt; do
     case $opt in
+        b)
+            build_docker_image
+            exit 0
+            ;;
         d)
             if [[ -d $OPTARG ]]; then
                 datadir=$OPTARG
+                if [ "${DIR:0:1}" != "/" ] ; then
+                    datadir=$( readlink -f $datadir)
+                fi
             else
                 error "'$OPTARG' is not a valid directory."
             fi
@@ -122,12 +144,12 @@ if [[ -z $datadir ]]; then
 fi
 
 # Validate directories
-docker_filter_config=$datadir/config/conf.d
+docker_filter_config=$datadir/logstash/conf.d
 if [[ ! -d $docker_filter_config ]]; then
     error "The filter config directory '$docker_filter_config' does not exist."
 fi
 
-docker_pattern_config=$datadir/config/patterns
+docker_pattern_config=$datadir/logstash/patterns
 if [[ ! -d $docker_pattern_config ]]; then
     error "The patterns directory '$docker_pattern_config' does not exist."
 fi
@@ -145,5 +167,10 @@ if [[ ! -d $docker_pattern_test ]]; then
     error "The patterns tests directory '$docker_pattern_test' does not exist."
 fi
 
-run_docker $action $configtest $docker_filter_config $docker_pattern_config $docker_filter_test $docker_pattern_test
+run_docker $action \
+    $configtest \
+    $docker_filter_config \
+    $docker_pattern_config \
+    $docker_filter_test \
+    $docker_pattern_test
 

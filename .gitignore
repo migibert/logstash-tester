@@ -1,2 +1,13 @@
-# Sample log files go in this directory
-samples/*
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Editors files
+*~
+*.swp
